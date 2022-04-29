@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 from transformers import T5Tokenizer, T5Config, T5ForConditionalGeneration
 from transformers import get_constant_schedule_with_warmup, get_linear_schedule_with_warmup
 from transformers.optimization import Adafactor
+from transformers.modeling_outputs import Seq2SeqLMOutput, Seq2SeqModelOutput, BaseModelOutput, BaseModelOutputWithPastAndCrossAttentions
 
 class T5forDialog(T5ForConditionalGeneration):
     def __init__(self, config):

@@ -7,7 +7,6 @@ import numpy as np
 from os.path import join as pjoin
 from transformers import T5Config, T5ForConditionalGeneration, T5Tokenizer
 
-
 def create_training_data(examples, tokenizer, args, filename, special_token_ids):
     usr_bos_id, usr_eos_id, sys_bos_id, sys_eos_id = special_token_ids
     print("\nDataset:", filename)
@@ -20,9 +19,13 @@ def create_training_data(examples, tokenizer, args, filename, special_token_ids)
         dialog = []
 
         for i, turn in enumerate(example):
-            usr = tokenizer.encode(turn['usr'].lower())[:-1]
+            usr = turn['usr'].lower()
+            usr = re.sub(r" ##", "", usr)
+            usr = tokenizer.encode(usr)[:-1]
             usr = [usr_bos_id] + usr + [usr_eos_id]
-            sys = tokenizer.encode(turn['sys'].lower())[:-1]
+            sys = turn['sys'].lower()
+            sys = re.sub(r" ##", "", sys)
+            sys = tokenizer.encode(sys)[:-1]
             sys = [sys_bos_id] + sys + [sys_eos_id]
 
             dialog.append({'usr':usr, 'sys':sys})
@@ -63,17 +66,22 @@ def main(args):
         data = create_training_data(data, tokenizer, args, filename, special_token_ids=special_token_ids)
         datasets.extend(data)
 
-    if not os.path.exists(os.path.join(args.data_path, "encoded")):
-        os.mkdir(os.path.join(args.data_path, "encoded"))
+    save_path = args.save_path
+    if save_path is None:
+        save_path = os.path.join(args.data_path, "encoded")
 
-    with open(os.path.join(args.data_path, "encoded", args.data_name+'_id.json'), 'w', encoding='utf-8') as fout:
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
+    with open(os.path.join(save_path, args.data_name+'_id.json'), 'w', encoding='utf-8') as fout:
         json.dump(datasets, fout)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--backbone", default="KETI-AIR/ke-t5-base", type=str,
+    parser.add_argument("--backbone", default="digit82/kolang-t5-base", type=str,
                         help="The model checkpoint for weights initialization.")
     parser.add_argument("--data_path", default="data", type=str)
+    parser.add_argument("--save_path", default=None, type=str)
     parser.add_argument("--data_name", type=str, default="kor_merge")
 
     args = parser.parse_args()

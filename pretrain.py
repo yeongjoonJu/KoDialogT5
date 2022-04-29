@@ -95,7 +95,7 @@ def main(args):
         args.num_training_steps = int(len(train_dataloader) * args.num_train_epochs / args.n_gpu)
 
     if args.warmup_steps < 0:
-        args.warmup_steps = int(len(train_dataloader) / args.n_gpu * args.num_train_epochs * 0.1)
+        args.warmup_steps = int(len(train_dataloader) / args.n_gpu * args.num_train_epochs * 0.2)
 
     val_iters = len(train_dataloader)//args.n_gpu//3
     print("Val iters:", val_iters, "Warmup steps:", args.warmup_steps)
